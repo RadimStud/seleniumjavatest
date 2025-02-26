@@ -16,6 +16,7 @@ public class TestMain {
             driver.manage().window().maximize();
 
             // Otevře hlavní stránku
+            // Otevře hlavní stránku
             driver.get("https://radimstudeny.cz");
 
             // XPath selektory pro menu
