@@ -1,0 +1,40 @@
+name: Selenium Test Pipeline
+
+on:
+  push:
+    branches:
+      - main  # Spustí se při pushnutí na main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  # Použije Linux runner
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'  # Použije OpenJDK
+          java-version: '17'
+
+      - name: Install Chrome & ChromeDriver
+        run: |
+          sudo apt update
+          sudo apt install -y google-chrome-stable
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
+          CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
+          wget -N "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
+          chromedriver --version
+
+      - name: Compile Java project
+        run: javac src/TestMain.java -cp .:seleniumhq.selenium.java-4.10.0.jar:seleniumhq.selenium.chrome.driver-4.10.0.jar
+
+      - name: Run Selenium test
+        run: java -cp .:seleniumhq.selenium.java-4.10.0.jar:seleniumhq.selenium.chrome.driver-4.10.0.jar src.TestMain
