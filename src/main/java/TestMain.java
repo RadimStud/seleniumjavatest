@@ -15,6 +15,7 @@ public class TestMain {
 
         try {
             // Maximalizuje okno prohlížeče
+                  // Maximalizuje okno prohlížeče
             driver.manage().window().maximize();
 
             // Otevře hlavní stránku
