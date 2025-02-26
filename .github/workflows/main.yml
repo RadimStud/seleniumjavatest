@@ -3,14 +3,14 @@ name: Selenium Test Pipeline
 on:
   push:
     branches:
-      - main  # Spustí se při každém pushi do main
+      - main
   pull_request:
     branches:
       - main
 
 jobs:
   test:
-    runs-on: ubuntu-latest  # Spustí se na Linuxu
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -19,14 +19,14 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'  # Použije OpenJDK
+          distribution: 'temurin'
           java-version: '17'
 
       - name: Install Chrome & ChromeDriver
         run: |
           sudo apt update
           sudo apt install -y google-chrome-stable jq
-          
+
           # Získání nejnovější verze ChromeDriveru přes Google API
           CHROMEDRIVER_URL=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r ".channels.Stable.downloads.chromedriver[] | select(.platform == \"linux64\").url")
 
@@ -38,8 +38,16 @@ jobs:
           chromedriver --version
           google-chrome --version
 
+      - name: Install Selenium dependencies
+        run: |
+          mkdir -p libs
+          wget -P libs https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-java/4.10.0/selenium-java-4.10.0.jar
+          wget -P libs https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-chrome-driver/4.10.0/selenium-chrome-driver-4.10.0.jar
+          wget -P libs https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-api/4.10.0/selenium-api-4.10.0.jar
+          wget -P libs https://repo1.maven.org/maven2/org/webdriver/WebDriver/1.0/WebDriver-1.0.jar
+
       - name: Compile Java project
-        run: javac -cp .:libs/* src/TestMain.java
+        run: javac -cp "libs/*" -d . src/TestMain.java
 
       - name: Run Selenium test
-        run: java -cp .:libs/* src.TestMain
+        run: java -cp ".:libs/*" TestMain
