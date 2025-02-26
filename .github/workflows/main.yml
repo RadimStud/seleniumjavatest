@@ -38,16 +38,15 @@ jobs:
           chromedriver --version
           google-chrome --version
 
-      - name: Install Selenium dependencies
+      - name: Install Maven
         run: |
-          mkdir -p libs
-          wget -P libs https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-java/4.10.0/selenium-java-4.10.0.jar
-          wget -P libs https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-chrome-driver/4.10.0/selenium-chrome-driver-4.10.0.jar
-          wget -P libs https://repo1.maven.org/maven2/org/seleniumhq/selenium/selenium-api/4.10.0/selenium-api-4.10.0.jar
-          wget -P libs https://repo1.maven.org/maven2/org/webdriver/WebDriver/1.0/WebDriver-1.0.jar
+          sudo apt update
+          sudo apt install -y maven
 
-      - name: Compile Java project
-        run: javac -cp "libs/*" -d . src/TestMain.java
+      - name: Compile Java project with Maven
+        run: |
+          mvn clean compile
 
       - name: Run Selenium test
-        run: java -cp ".:libs/*" TestMain
+        run: |
+          mvn exec:java -Dexec.mainClass="TestMain"
