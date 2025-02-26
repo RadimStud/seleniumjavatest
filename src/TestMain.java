@@ -3,7 +3,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
-public class MainMenuTest {
+public class TestMain {
     public static void main(String[] args) {
         // Nastavení cesty k ChromeDriveru
         System.setProperty("webdriver.chrome.driver", "C:\\chromedriver\\chromedriver.exe");
@@ -12,6 +12,9 @@ public class MainMenuTest {
         WebDriver driver = new ChromeDriver();
 
         try {
+            // Maximalizuje okno prohlížeče
+            driver.manage().window().maximize();
+
             // Otevře hlavní stránku
             driver.get("https://radimstudeny.cz");
 
