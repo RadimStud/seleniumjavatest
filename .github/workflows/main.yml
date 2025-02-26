@@ -3,14 +3,14 @@ name: Selenium Test Pipeline
 on:
   push:
     branches:
-      - main  # Spustí se při pushnutí na main
+      - main  # Spustí se při každém pushi do main
   pull_request:
     branches:
       - main
 
 jobs:
   test:
-    runs-on: ubuntu-latest  # Použije Linux runner
+    runs-on: ubuntu-latest  # Spustí se na Linuxu
 
     steps:
       - name: Checkout repository
@@ -22,24 +22,24 @@ jobs:
           distribution: 'temurin'  # Použije OpenJDK
           java-version: '17'
 
-   - name: Install Chrome & ChromeDriver
+      - name: Install Chrome & ChromeDriver
         run: |
           sudo apt update
-          sudo apt install -y google-chrome-stable
+          sudo apt install -y google-chrome-stable jq
           
           # Získání nejnovější verze ChromeDriveru přes Google API
-          CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
-          CHROMEDRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r ".channels.Stable.downloads.chromedriver[] | select(.platform == \"linux64\").url")
+          CHROMEDRIVER_URL=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r ".channels.Stable.downloads.chromedriver[] | select(.platform == \"linux64\").url")
 
           # Stažení a instalace správného ChromeDriveru
-          wget -N "$CHROMEDRIVER_VERSION" -O chromedriver-linux64.zip
+          wget -N "$CHROMEDRIVER_URL" -O chromedriver-linux64.zip
           unzip chromedriver-linux64.zip
           sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
           chmod +x /usr/local/bin/chromedriver
           chromedriver --version
+          google-chrome --version
 
       - name: Compile Java project
-        run: javac src/TestMain.java -cp .:seleniumhq.selenium.java-4.10.0.jar:seleniumhq.selenium.chrome.driver-4.10.0.jar
+        run: javac -cp .:libs/* src/TestMain.java
 
       - name: Run Selenium test
-        run: java -cp .:seleniumhq.selenium.java-4.10.0.jar:seleniumhq.selenium.chrome.driver-4.10.0.jar src.TestMain
+        run: java -cp .:libs/* src.TestMain
