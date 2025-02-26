@@ -45,6 +45,7 @@ jobs:
 
       - name: Compile Java project with Maven
         run: |
+          ls -la  # Ověření, že pom.xml existuje
           mvn clean compile
 
       - name: Run Selenium test
