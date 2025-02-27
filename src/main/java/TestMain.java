@@ -5,6 +5,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import java.time.Duration;
 
 public class TestMain {
     public static void main(String[] args) {
@@ -14,14 +17,15 @@ public class TestMain {
         // Konfigurace Chrome options
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless");  // Spustí Chrome bez GUI (nutné pro CI/CD)
-        options.addArguments("--disable-gpu");  // Zakáže GPU akceleraci (někdy nutné v CI/CD)
-        options.addArguments("--no-sandbox");  // Obchází sandboxing
-        options.addArguments("--disable-dev-shm-usage");  // Oprava pro omezení sdílené paměti
-        options.addArguments("--remote-allow-origins=*");  // Povolení vzdálených připojení
+        options.addArguments("--disable-gpu");
+        options.addArguments("--no-sandbox");
+        options.addArguments("--disable-dev-shm-usage");
+        options.addArguments("--remote-allow-origins=*");
         options.addArguments("--user-data-dir=/tmp/chrome-profile");  // Unikátní profil
 
         // Inicializace WebDriveru s upravenými parametry
         WebDriver driver = new ChromeDriver(options);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));  // Čekání max 10 sekund
 
         try {
             driver.manage().window().maximize();
@@ -35,7 +39,7 @@ public class TestMain {
             };
 
             for (String xpath : menuXpaths) {
-                WebElement menuItem = driver.findElement(By.xpath(xpath));
+                WebElement menuItem = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
                 System.out.println("Klikám na: " + menuItem.getText());
                 menuItem.click();
                 Thread.sleep(2000);
