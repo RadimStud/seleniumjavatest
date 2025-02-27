@@ -46,9 +46,9 @@ jobs:
       - name: Run Selenium test
         run: mvn exec:java -Dexec.mainClass="main.java.TestMain"
 
-      # 📸 Uložit screenshoty jako artefakt
+      # 📸 Uložit screenshoty jako artefakt pomocí `v4`
       - name: Upload screenshots
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: selenium-screenshots
           path: screenshots/
