@@ -27,27 +27,21 @@ jobs:
           sudo apt update
           sudo apt install -y google-chrome-stable jq
 
-          # Získání nejnovější verze ChromeDriveru přes Google API
+          # Získání správného ChromeDriveru přes Google API
           CHROMEDRIVER_URL=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r ".channels.Stable.downloads.chromedriver[] | select(.platform == \"linux64\").url")
 
-          # Stažení a instalace správného ChromeDriveru
+          # Stažení a instalace ChromeDriveru
           wget -N "$CHROMEDRIVER_URL" -O chromedriver-linux64.zip
           unzip chromedriver-linux64.zip
           sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
           chmod +x /usr/local/bin/chromedriver
+
+          # Ověření verzí
           chromedriver --version
           google-chrome --version
 
-      - name: Install Maven
-        run: |
-          sudo apt update
-          sudo apt install -y maven
-
-      - name: Compile Java project with Maven
-        run: |
-          ls -la  # Ověření, že pom.xml existuje
-          mvn clean compile
+      - name: Compile Java project
+        run: mvn clean compile
 
       - name: Run Selenium test
-        run: |
-          mvn exec:java -Dexec.mainClass="TestMain"
+        run: mvn exec:java -Dexec.mainClass="main.java.TestMain"
