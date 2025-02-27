@@ -7,6 +7,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
 import java.time.Duration;
 
 public class TestMain {
@@ -23,7 +24,7 @@ public class TestMain {
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("--user-data-dir=/tmp/chrome-profile");  // Unikátní profil
 
-        // Inicializace WebDriveru s upravenými parametry
+        // Inicializace WebDriveru
         WebDriver driver = new ChromeDriver(options);
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));  // Čekání max 10 sekund
 
@@ -39,27 +40,17 @@ public class TestMain {
             };
 
             for (String xpath : menuXpaths) {
-                WebElement menuItem = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
+                WebElement menuItem = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpath)));
                 System.out.println("Klikám na: " + menuItem.getText());
                 menuItem.click();
-                Thread.sleep(2000);
+                wait.until(ExpectedConditions.stalenessOf(menuItem)); // Počkej, než zmizí starý element
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-    if (driver != null) {
-        driver.quit();  // Ukončení WebDriveru
-    }
-    try {
-        // Ukončení všech běžících vláken
-        ForkJoinPool.commonPool().shutdownNow();
-        
-        // Explicitně ukončit JVM
-        System.exit(0);
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-}
-
+            if (driver != null) {
+                driver.quit();  // Ukončení WebDriveru
+            }
+        }
     }
 }
