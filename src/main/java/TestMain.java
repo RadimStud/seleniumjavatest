@@ -8,7 +8,8 @@ import org.openqa.selenium.chrome.ChromeDriver;
 public class TestMain {
     public static void main(String[] args) {
         // Nastavení cesty k ChromeDriveru
-        System.setProperty("webdriver.chrome.driver", "C:\\chromedriver\\chromedriver.exe");
+       System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
+
 
         // Inicializace WebDriveru
         WebDriver driver = new ChromeDriver();
