@@ -1,3 +1,5 @@
+package main.java;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -7,25 +9,24 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class TestMain {
     public static void main(String[] args) {
+        // Nastavení cesty k ChromeDriveru
         System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
 
         // Konfigurace Chrome options
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--headless");  
+        options.addArguments("--headless");  // Spustí Chrome bez GUI (nutné pro CI/CD)
         options.addArguments("--disable-gpu");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--remote-allow-origins=*");
-        options.addArguments("--user-data-dir=/tmp/chrome-profile");  
+        options.addArguments("--user-data-dir=/tmp/chrome-profile");  // Unikátní profil
 
+        // Inicializace WebDriveru
         WebDriver driver = new ChromeDriver(options);
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));  
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));  // Čekání max 10 sekund
 
         try {
             driver.manage().window().maximize();
@@ -42,28 +43,14 @@ public class TestMain {
                 WebElement menuItem = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpath)));
                 System.out.println("Klikám na: " + menuItem.getText());
                 menuItem.click();
-                wait.until(ExpectedConditions.stalenessOf(menuItem)); 
+                wait.until(ExpectedConditions.stalenessOf(menuItem)); // Počkej, než zmizí starý element
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (driver != null) {
-                driver.quit();  
+                driver.quit();  // Ukončení WebDriveru
             }
-
-            // Ukončení všech běžících vláken
-            shutdownThreads();
-        }
-    }
-
-    private static void shutdownThreads() {
-        try {
-            ExecutorService executor = Executors.newCachedThreadPool();
-            executor.shutdown();
-            executor.awaitTermination(5, TimeUnit.SECONDS);
-            System.out.println("Všechna vlákna byla ukončena.");
-        } catch (InterruptedException e) {
-            System.err.println("Chyba při ukončování vláken.");
         }
     }
 }
