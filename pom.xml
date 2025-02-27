@@ -1,51 +1,47 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+name: Selenium Test Pipeline
 
-    <groupId>com.example</groupId>
-    <artifactId>selenium-test</artifactId>
-    <version>1.0-SNAPSHOT</version>
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-    </properties>
+jobs:
+  test:
+    runs-on: ubuntu-latest
 
-    <dependencies>
-        <!-- Selenium -->
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-            <version>4.10.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-chrome-driver</artifactId>
-            <version>4.10.0</version>
-        </dependency>
-    </dependencies>
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                </configuration>
-            </plugin>
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <configuration>
-                    <mainClass>main.java.TestMain</mainClass>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-</project>
+      - name: Install Chrome & ChromeDriver
+        run: |
+          sudo apt update
+          sudo apt install -y google-chrome-stable jq
+
+          # Získání správného ChromeDriveru přes Google API
+          CHROMEDRIVER_URL=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" | jq -r ".channels.Stable.downloads.chromedriver[] | select(.platform == \"linux64\").url")
+
+          # Stažení a instalace ChromeDriveru
+          wget -N "$CHROMEDRIVER_URL" -O chromedriver-linux64.zip
+          unzip chromedriver-linux64.zip
+          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
+          chmod +x /usr/local/bin/chromedriver
+
+          # Ověření verzí
+          chromedriver --version
+          google-chrome --version
+
+      - name: Compile Java project
+        run: mvn clean compile
+
+      - name: Run Selenium test
+        run: mvn exec:java -Dexec.mainClass="main.java.TestMain"
