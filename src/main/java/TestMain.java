@@ -4,33 +4,36 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 public class TestMain {
     public static void main(String[] args) {
         // Nastavení cesty k ChromeDriveru
-       System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
+        System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
 
+        // Konfigurace Chrome options
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");  // Spustí Chrome bez GUI (nutné pro CI/CD)
+        options.addArguments("--disable-gpu");  // Zakáže GPU akceleraci (někdy nutné v CI/CD)
+        options.addArguments("--no-sandbox");  // Obchází sandboxing
+        options.addArguments("--disable-dev-shm-usage");  // Oprava pro omezení sdílené paměti
+        options.addArguments("--remote-allow-origins=*");  // Povolení vzdálených připojení
+        options.addArguments("--user-data-dir=/tmp/chrome-profile");  // Unikátní profil
 
-        // Inicializace WebDriveru
-        WebDriver driver = new ChromeDriver();
+        // Inicializace WebDriveru s upravenými parametry
+        WebDriver driver = new ChromeDriver(options);
 
         try {
-            // Maximalizuje okno prohlížeče
-                  // Maximalizuje okno prohlížeče
             driver.manage().window().maximize();
-
-            // Otevře hlavní stránku
             driver.get("https://radimstudeny.cz");
 
-            // XPath selektory pro menu
             String[] menuXpaths = {
-                    "//*[@id='modal-1-content']/ul/li[1]/a/span",
-                    "//*[@id='modal-1-content']/ul/li[2]/a/span",
-                    "//*[@id='modal-1-content']/ul/li[3]/a/span",
-                    "//*[@id='modal-1-content']/ul/li[4]/a/span"
+                "//*[@id='modal-1-content']/ul/li[1]/a/span",
+                "//*[@id='modal-1-content']/ul/li[2]/a/span",
+                "//*[@id='modal-1-content']/ul/li[3]/a/span",
+                "//*[@id='modal-1-content']/ul/li[4]/a/span"
             };
 
-            // Klikání na položky menu
             for (String xpath : menuXpaths) {
                 WebElement menuItem = driver.findElement(By.xpath(xpath));
                 System.out.println("Klikám na: " + menuItem.getText());
@@ -40,7 +43,6 @@ public class TestMain {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            // Zavře prohlížeč
             driver.quit();
         }
     }
