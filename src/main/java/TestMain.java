@@ -47,7 +47,19 @@ public class TestMain {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            driver.quit();
-        }
+    if (driver != null) {
+        driver.quit();  // Ukončení WebDriveru
+    }
+    try {
+        // Ukončení všech běžících vláken
+        ForkJoinPool.commonPool().shutdownNow();
+        
+        // Explicitně ukončit JVM
+        System.exit(0);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
     }
 }
